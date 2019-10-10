@@ -34,6 +34,7 @@ typedef struct {
 	uint button;
 	void (*func)(const Arg *);
 	const Arg arg;
+	uint  release;
 } MouseShortcut;
 
 typedef struct {
@@ -179,6 +180,7 @@ static void kpress(XEvent *);
 static void cmessage(XEvent *);
 static void resize(XEvent *);
 static void focus(XEvent *);
+static int mouseaction(XEvent *, uint);
 static void brelease(XEvent *);
 static void bpress(XEvent *);
 static void bmotion(XEvent *);
@@ -430,11 +432,27 @@ mousereport(XEvent *e)
 	ttywrite(buf, len, 0);
 }
 
+int
+mouseaction(XEvent *e, uint release)
+{
+	MouseShortcut *ms;
+
+	for (ms = mshortcuts; ms < mshortcuts + LEN(mshortcuts); ms++) {
+		if (ms->release == release &&
+		    ms->button == e->xbutton.button &&
+		    match(ms->mod, e->xbutton.state & ~forcemousemod)) {
+			ms->func(&(ms->arg));
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 void
 bpress(XEvent *e)
 {
 	struct timespec now;
-	MouseShortcut *ms;
 	int snap;
 
 	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
@@ -442,13 +460,8 @@ bpress(XEvent *e)
 		return;
 	}
 
-	for (ms = mshortcuts; ms < mshortcuts + LEN(mshortcuts); ms++) {
-		if (e->xbutton.button == ms->button &&
-		    match(ms->mod, e->xbutton.state & ~forcemousemod)) {
-			ms->func(&(ms->arg));
-			return;
-		}
-	}
+	if (mouseaction(e, 0))
+		return;
 
 	if (e->xbutton.button == Button1) {
 		/*
@@ -669,9 +682,9 @@ brelease(XEvent *e)
 		return;
 	}
 
-	if (e->xbutton.button == Button2)
-		selpaste(NULL);
-	else if (e->xbutton.button == Button1)
+	if (mouseaction(e, 1))
+		return;
+	if (e->xbutton.button == Button1)
 		mousesel(e, 1);
 }
 
