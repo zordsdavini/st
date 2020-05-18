@@ -8,3 +8,7 @@ Applied patches:
   `.Xresources`. To check how to enable see my dotfiles
 * **spoiler** - invert colors then selecting. That avoids lost text if it is same colour as selection
 
+Other relations:
+* `scroll` program from sucless is used as scrollbuffer
+
+2020-05-19 - bump to 0.8.3 version
