@@ -8,6 +8,7 @@ Applied patches:
   `.Xresources`. To check how to enable see my dotfiles
 * **spoiler** - invert colors then selecting. That avoids lost text if it is same colour as selection
 * **newterm** - open new terminal with <C-return>
+* **scrollback** - have normal scrollback in st. `scroll` had some issues
 
 2020-05-19 - bump to 0.8.3 version
 2020-06-19 - bump to 0.8.4 version
